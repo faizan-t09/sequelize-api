@@ -19,6 +19,10 @@ export const handleUserGetAll = async (req: Request, res: Response) => {
     const users = await User.findAll({
       ...req.body,
       where: { deletedBy: null },
+      sort: [req.query.sort,(req.query.isDescending=="true" ? 'DESC' : 'ASC')],
+      group:req.query.groupBy && [req.query.groupBy as string],
+      limit: req.query.limit && parseInt(req.query.limit as string),
+      offset: req.query.offset && parseInt(req.query.offset as string),
       attributes: ["id", "username","roleId"],
     });
     if (users.length > 0) {

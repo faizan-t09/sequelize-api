@@ -18,6 +18,10 @@ export const handleRoleGetAll = async (req: Request, res: Response) => {
     const roles = await Role.findAll({
       ...req.body,
       where: { deletedBy: null },
+      sort: [req.query.sort,(req.query.isDescending=="true" ? 'DESC' : 'ASC')],
+      group:req.query.groupBy && [req.query.groupBy as string],
+      limit: req.query.limit && parseInt(req.query.limit as string),
+      offset: req.query.offset && parseInt(req.query.offset as string),
     });
     if (roles.length > 0) {
       res.status(200).json(roles);
