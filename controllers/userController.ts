@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import getCurrentTimeStamp from "./timeStampHelper";
 import User from "../models/userModel";
+import Role from "../models/roleModel";
+import sequelizeConn from "../dbConn";
 const { Op } = require("sequelize");
 
 export const handleUserInsert = async (req: Request, res: Response) => {
@@ -19,11 +21,12 @@ export const handleUserGetAll = async (req: Request, res: Response) => {
     const users = await User.findAll({
       ...req.body,
       where: { deletedBy: null },
-      sort: [req.query.sort,(req.query.isDescending=="true" ? 'DESC' : 'ASC')],
-      group:req.query.groupBy && [req.query.groupBy as string],
+      order: req.query.sortBy && [[req.query.sortBy, req.query.isDescending=='true' ? "DESC" : "ASC"]],
+      group: req.query.groupBy && [req.query.groupBy as string],
       limit: req.query.limit && parseInt(req.query.limit as string),
       offset: req.query.offset && parseInt(req.query.offset as string),
-      attributes: ["id", "username","roleId"],
+      attributes: ["id", "username"],
+      include: [{ model: Role, attributes: ["name"] }],
     });
     if (users.length > 0) {
       res.status(200).json(users);
@@ -40,7 +43,7 @@ export const handleUserGetById = async (req: Request, res: Response) => {
   try {
     const user = await User.findOne({
       where: { id: req.params.id, deletedBy: null },
-      attributes: ["id", "username","roleId"],
+      attributes: ["id", "username", "roleId"],
     });
     if (user) {
       res.status(200).json(user);

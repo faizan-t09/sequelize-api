@@ -39,8 +39,6 @@ const User = seqConn.define(
       },
       validate:{
         notEmpty:true,
-        isAlphanumeric:true,
-        len:[8,20],
       }
     },
     roleId: {
